@@ -52,21 +52,12 @@ jobs:
 
       - name: Deploy Qt DLLs
         run: |
-          $installBin = "build\install\bin"
-          if (-not (Test-Path $installBin)) {
-            $installBin = "install\bin"
-          }
-          windeployqt --release --no-translations --no-opengl-sw $installBin\input-leap.exe
-          windeployqt --release --no-translations --no-opengl-sw $installBin\input-leaps.exe
-          windeployqt --release --no-translations --no-opengl-sw $installBin\input-leapc.exe
+          windeployqt --release --no-translations --no-opengl-sw install\input-leap.exe
+          windeployqt --release --no-translations --no-opengl-sw install\input-leaps.exe
+          windeployqt --release --no-translations --no-opengl-sw install\input-leapc.exe
 
       - name: Package
-        run: |
-          $installBin = "build\install\bin"
-          if (-not (Test-Path $installBin)) {
-            $installBin = "install\bin"
-          }
-          Compress-Archive -Path "$installBin\*" -DestinationPath input-leap-win-release.zip
+        run: Compress-Archive -Path "install\*" -DestinationPath input-leap-win-release.zip
 
       - uses: actions/upload-artifact@v4
         with:
