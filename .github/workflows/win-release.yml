@@ -42,9 +42,13 @@ jobs:
             -DINPUTLEAP_BUILD_TESTS=OFF `
             -DDNSSD_LIB="${{ steps.bonjour.outputs.path }}\Lib\x64\dnssd.lib" `
             -DCMAKE_INSTALL_PREFIX=install
+        env:
+          BONJOUR_SDK_HOME: ${{ steps.bonjour.outputs.path }}
 
       - name: Build
         run: cmake --build build --config Release --target install
+        env:
+          BONJOUR_SDK_HOME: ${{ steps.bonjour.outputs.path }}
 
       - name: Deploy Qt DLLs
         run: |
