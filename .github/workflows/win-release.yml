@@ -53,8 +53,6 @@ jobs:
       - name: Deploy Qt DLLs
         run: |
           windeployqt --release --no-translations --no-opengl-sw install\input-leap.exe
-          windeployqt --release --no-translations --no-opengl-sw install\input-leaps.exe
-          windeployqt --release --no-translations --no-opengl-sw install\input-leapc.exe
 
       - name: Package
         run: Compress-Archive -Path "install\*" -DestinationPath input-leap-win-release.zip
