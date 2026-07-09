@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: resources
+title: 应用资源与构建辅助文件
+scope:
+    - res/
+source_files: []
+depends_on: []
+related_to:
+    - path: documentation

@@ -1,0 +1,18 @@
+schema_version: 1
+module_path: ""
+title: InputLeap 项目根与构建编排
+scope:
+    - README.md
+    - ChangeLog
+    - RELEASING.md
+    - .gitignore
+    - .editorconfig
+    - .gitmodules
+    - CMakeLists.txt
+    - towncrier.toml
+    - clean_build.ps1
+    - clean_build.sh
+    - LICENSE
+source_files: []
+depends_on: []
+related_to: []

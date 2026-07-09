@@ -1,0 +1,48 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: zh-CN
+branch: master
+nodes_managed: true
+exported_at: "2026-07-08T16:05:41Z"
+modules:
+    "":
+        dir_name: InputLeap 项目根与构建编排
+        title: InputLeap 项目根与构建编排
+        scope:
+            - README.md
+            - ChangeLog
+            - RELEASING.md
+            - .gitignore
+            - .editorconfig
+            - .gitmodules
+            - CMakeLists.txt
+            - towncrier.toml
+            - clean_build.ps1
+            - clean_build.sh
+            - LICENSE
+        source_files: []
+        children:
+            - documentation
+            - resources
+        depends_on: []
+        related_to: []
+    documentation:
+        dir_name: 用户文档、示例配置与发行说明碎片
+        title: 用户文档、示例配置与发行说明碎片
+        scope:
+            - doc/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: resources
+    resources:
+        dir_name: 应用资源与构建辅助文件
+        title: 应用资源与构建辅助文件
+        scope:
+            - res/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: documentation
