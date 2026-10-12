@@ -255,6 +255,11 @@ include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/ext/gulrak-filesystem/include")
 if (APPLE OR WIN32)
     set(OPENSSL_USE_STATIC_LIBS TRUE)
 endif()
+# Windows: default to the OpenSSL vendored in third_party/ so a fresh clone
+# builds without an external SDK. Override with -DOPENSSL_ROOT_DIR=... .
+if (WIN32 AND NOT DEFINED OPENSSL_ROOT_DIR AND EXISTS "${CMAKE_SOURCE_DIR}/third_party/openssl")
+    set(OPENSSL_ROOT_DIR "${CMAKE_SOURCE_DIR}/third_party/openssl")
+endif()
 find_package(OpenSSL 1.1.1 REQUIRED COMPONENTS SSL Crypto)
 #
 # Configure_file... but for directories, recursively.
