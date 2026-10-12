@@ -175,12 +175,17 @@ MSWindowsScreen::~MSWindowsScreen()
     delete m_desks;
     delete m_screensaver;
     destroyWindow(m_window);
-    destroyClass(m_class);
 
     RevokeDragDrop(m_dropWindow);
     m_dropTarget->Release();
     OleUninitialize();
     destroyWindow(m_dropWindow);
+
+    // the drop window shares m_class, so the class can only be unregistered
+    // after both windows are gone; otherwise UnregisterClass fails, the class
+    // stays registered, and the next RegisterClassEx returns 0, which makes
+    // createWindow() call CreateWindowEx() with a null class (error 87).
+    destroyClass(m_class);
 
     s_screen = nullptr;
 }
