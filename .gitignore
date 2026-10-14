@@ -6,7 +6,12 @@ config.h
 *~
 \.*.swp
 *build-gui-Desktop_Qt*
-/bin
+/bin/*
+!/bin/linux/
+# bin/linux 只受控脚本与配置，二进制/资源产物不入库
+/bin/linux/bin/
+/bin/linux/lib/
+/bin/linux/share/
 /lib
 /build
 /out

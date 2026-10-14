@@ -1,0 +1,16 @@
+[Unit]
+Description=Input Leap client (connects to 10.68.8.73:24800)
+After=graphical-session.target
+PartOf=graphical-session.target
+StartLimitIntervalSec=500
+StartLimitBurst=10
+
+[Service]
+# 等待桌面完全就绪后再连接
+ExecStartPre=/bin/sleep 5
+ExecStart=/opt/input-leap/run-client.sh
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=graphical-session.target
