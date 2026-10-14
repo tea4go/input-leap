@@ -18,7 +18,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(InputLeap C CXX)
 
-option(INPUTLEAP_BUILD_GUI "Build the GUI" ON)
+option(INPUTLEAP_BUILD_GUI "Build the GUI" OFF)
 option(INPUTLEAP_BUILD_TESTS "Build the tests" ON)
 option(INPUTLEAP_USE_EXTERNAL_GTEST "Use external installation of Google Test framework" OFF)
 option(INPUTLEAP_BUILD_X11 "Build with XWindows support" ON)
@@ -292,7 +292,7 @@ macro (configure_files srcDir destDir)
 endmacro (configure_files)
 
 # Make a bundle for mac os
-if (APPLE)
+if (APPLE AND INPUTLEAP_BUILD_GUI)
     set (CMAKE_INSTALL_RPATH "@loader_path/../Libraries;@loader_path/../Frameworks")
     set(INPUTLEAP_BUNDLE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dist/macos/bundle)
     set(INPUTLEAP_BUNDLE_DIR ${CMAKE_BINARY_DIR}/bundle)
