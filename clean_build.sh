@@ -1,4 +1,15 @@
 #!/bin/sh
+# InputLeap 构建脚本（仅命令行程序，不含 Qt 界面）
+#
+# 构建产物：input-leapc（客户端）、input-leaps（服务端）
+# 通过 INPUTLEAP_BUILD_GUI=OFF 关闭 Qt 界面，因此不需要 Qt / avahi；
+# 通过 INPUTLEAP_BUILD_TESTS=OFF 关闭单元测试，因此不需要 ext/ 下的子模块。
+#
+# 可用环境变量：
+#   B_CMAKE        指定 cmake 可执行文件
+#   B_BUILD_DIR    构建目录，默认 build
+#   B_BUILD_TYPE   构建类型，默认 Debug
+#   B_CMAKE_FLAGS  附加的 CMake 参数
 
 cd "$(dirname "$0")" || exit 1
 
@@ -13,7 +24,8 @@ fi
 
 B_BUILD_DIR="${B_BUILD_DIR:-build}"
 B_BUILD_TYPE="${B_BUILD_TYPE:-Debug}"
-B_CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=${B_BUILD_TYPE} ${B_CMAKE_FLAGS:-}"
+# 仅构建命令行程序：关闭 GUI（省去 Qt/avahi 依赖）与单元测试（省去 ext/ 子模块）
+B_CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=${B_BUILD_TYPE} -DINPUTLEAP_BUILD_GUI=OFF -DINPUTLEAP_BUILD_TESTS=OFF ${B_CMAKE_FLAGS:-}"
 
 if [ "$(uname)" = "Darwin" ]; then
     # macOS needs a little help, so we source this environment script to fix paths.
@@ -30,9 +42,6 @@ fi
 [ -r ./build_env.sh ] && . ./build_env.sh
 
 set -e
-
-# Initialise Git submodules
-git submodule update --init --recursive
 
 rm -rf ${B_BUILD_DIR}
 mkdir ${B_BUILD_DIR}
