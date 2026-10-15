@@ -10,6 +10,7 @@ REM
 REM  Examples:
 REM      clean_build.bat                      build (default)
 REM      clean_build.bat --clean              clean .\build only, no build
+REM      clean_build.bat --help               show help
 REM      set B_BUILD_TYPE=Debug && clean_build.bat
 REM      clean_build.bat -AnyArg value
 REM

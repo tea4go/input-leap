@@ -11,16 +11,17 @@
     Inno Setup；OpenSSL 使用仓库内 third_party/openssl，无需外部安装。
     构建产物安装到项目根的 bin\windows（与 bin\windows\run-server.bat 同级）。
 
-.PREREQUISITES
-    仅需 Visual Studio 2022/2019（含 C++ 生成工具）与 CMake，其余依赖随仓库提供。
-    CMake 优先取 PATH 中的 cmake；若未安装，会自动回退到 Visual Studio 自带的
-    CMake（BuildTools 版通常自带，但不加入 PATH）。
+    前置要求：仅需 Visual Studio 2022/2019（含 C++ 生成工具）与 CMake，其余依赖
+    随仓库提供。CMake 优先取 PATH 中的 cmake；若未安装，会自动回退到 Visual Studio
+    自带的 CMake（BuildTools 版通常自带，但不加入 PATH）。
 
-.ENVIRONMENT
-    B_BUILD_TYPE   构建类型，默认 Release
+    环境变量：B_BUILD_TYPE 指定构建类型，默认 Release。
 
 .PARAMETER Clean
     只清理 build 目录后退出，不做任何构建。也可写成 --clean。
+
+.PARAMETER Help
+    显示本帮助后退出。也可写成 --help。
 
 .EXAMPLE
     .\clean_build.ps1
@@ -30,16 +31,26 @@
     .\clean_build.ps1 --clean
     只清理 build 目录，不构建。
 
+.EXAMPLE
+    .\clean_build.ps1 --help
+    显示帮助。
+
 .NOTES
     脚本会删除并重建 ./build 目录，请勿在其中存放需保留的内容。
 #>
 
 param(
-    [switch]$Clean
+    [switch]$Clean,
+    [switch]$Help
 )
 
-# ---- 0. --clean：只清理 build 目录，不构建 ------------------------------------
-# 置于最前，这样即使没装 Visual Studio / CMake 也能执行清理。
+# ---- 提前退出：--help 显示帮助、--clean 只清理不构建 --------------------------
+# 置于最前，这样即使没装 Visual Studio / CMake 也能使用。
+if ($Help) {
+    Get-Help $PSCommandPath -Detailed;
+    exit 0;
+}
+
 if ($Clean) {
     if (Test-Path -LiteralPath build) {
         Remove-Item -LiteralPath build -Recurse;
