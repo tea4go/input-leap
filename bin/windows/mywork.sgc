@@ -1,0 +1,50 @@
+section: screens
+	ZhaoPC:
+		halfDuplexCapsLock = false
+		halfDuplexNumLock = false
+		halfDuplexScrollLock = false
+		xtestIsXineramaUnaware = false
+		preserveFocus = false
+		switchCorners = top-right + bottom-right
+		switchCornerSize = 0
+	WhitePC:
+		halfDuplexCapsLock = false
+		halfDuplexNumLock = false
+		halfDuplexScrollLock = false
+		xtestIsXineramaUnaware = false
+		preserveFocus = false
+		switchCorners = top-right + bottom-right
+		switchCornerSize = 0
+	WorkPC:
+		halfDuplexCapsLock = false
+		halfDuplexNumLock = false
+		halfDuplexScrollLock = false
+		xtestIsXineramaUnaware = false
+		preserveFocus = false
+		switchCorners = top-left + bottom-left
+		switchCornerSize = 0
+end
+
+section: aliases
+end
+
+section: links
+	ZhaoPC:
+		right = WhitePC
+	WhitePC:
+		left = ZhaoPC
+		right = WorkPC
+	WorkPC:
+		left = WhitePC
+end
+
+section: options
+	relativeMouseMoves = false
+	screenSaverSync = true
+	win32KeepForeground = false
+	clipboardSharing = true
+	clipboardSharingSize = 100000000
+	switchCorners = none 
+	switchCornerSize = 0
+end
+
