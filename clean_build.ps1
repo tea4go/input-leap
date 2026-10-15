@@ -19,9 +19,36 @@
 .ENVIRONMENT
     B_BUILD_TYPE   构建类型，默认 Release
 
+.PARAMETER Clean
+    只清理 build 目录后退出，不做任何构建。也可写成 --clean。
+
+.EXAMPLE
+    .\clean_build.ps1
+    清理并构建（默认行为）。
+
+.EXAMPLE
+    .\clean_build.ps1 --clean
+    只清理 build 目录，不构建。
+
 .NOTES
     脚本会删除并重建 ./build 目录，请勿在其中存放需保留的内容。
 #>
+
+param(
+    [switch]$Clean
+)
+
+# ---- 0. --clean：只清理 build 目录，不构建 ------------------------------------
+# 置于最前，这样即使没装 Visual Studio / CMake 也能执行清理。
+if ($Clean) {
+    if (Test-Path -LiteralPath build) {
+        Remove-Item -LiteralPath build -Recurse;
+        Write-Output "Cleaned: build";
+    } else {
+        Write-Output "Nothing to clean: build not found";
+    }
+    exit 0;
+}
 
 # ---- 1. 探测可用的 Visual Studio --------------------------------------------
 # 按优先级依次尝试常见安装路径，命中第一个可用的即采用其生成器名（如 "Visual Studio 17 2022"）。
