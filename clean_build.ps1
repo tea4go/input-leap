@@ -16,25 +16,16 @@
     自带的 CMake（BuildTools 版通常自带，但不加入 PATH）。
 
     环境变量：B_BUILD_TYPE 指定构建类型，默认 Release。
-
 .PARAMETER Clean
     只清理 build 目录后退出，不做任何构建。也可写成 --clean。
-
 .PARAMETER Help
     显示本帮助后退出。也可写成 --help。
-
 .EXAMPLE
-    .\clean_build.ps1
-    清理并构建（默认行为）。
-
+    .\clean_build.ps1    清理并构建（默认行为）。
 .EXAMPLE
-    .\clean_build.ps1 --clean
-    只清理 build 目录，不构建。
-
+    .\clean_build.ps1 --clean    只清理 build 目录，不构建。
 .EXAMPLE
-    .\clean_build.ps1 --help
-    显示帮助。
-
+    .\clean_build.ps1 --help    显示帮助。
 .NOTES
     脚本会删除并重建 ./build 目录，请勿在其中存放需保留的内容。
 #>
