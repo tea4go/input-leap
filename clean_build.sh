@@ -4,9 +4,12 @@
 # 构建产物：input-leapc（客户端）、input-leaps（服务端）
 # 通过 INPUTLEAP_BUILD_GUI=OFF 关闭 Qt 界面，因此不需要 Qt / avahi；
 # 通过 INPUTLEAP_BUILD_TESTS=OFF 关闭单元测试，因此不需要 ext/ 下的子模块。
+# 构建完成后安装到仓库根的 bin/linux：
+#   bin/linux/bin/    可执行文件（input-leapc、input-leaps）
+#   bin/linux/share/  man 手册、desktop、metainfo、图标
 #
 # 用法：
-#   ./clean_build.sh            清理并构建（默认）
+#   ./clean_build.sh            清理并构建
 #   ./clean_build.sh --clean    只清理 build 目录，不构建
 #   ./clean_build.sh --help     显示本帮助
 #
@@ -17,13 +20,14 @@
 #   B_CMAKE_FLAGS  附加的 CMake 参数
 
 cd "$(dirname "$0")" || exit 1
+B_ROOT=$(pwd)                 # 仓库根 = 脚本所在目录
 
 usage() {
     cat <<'USAGE_EOF'
 InputLeap 构建脚本（仅命令行程序，不含 Qt 界面）
 
 用法:
-  ./clean_build.sh            清理并构建（默认）
+  ./clean_build.sh            清理并构建，并安装到 bin/linux
   ./clean_build.sh --clean    只清理 build 目录，不构建
   ./clean_build.sh --help     显示本帮助
 
@@ -40,6 +44,7 @@ USAGE_EOF
 
 B_BUILD_DIR="${B_BUILD_DIR:-build}"
 B_BUILD_TYPE="${B_BUILD_TYPE:-Debug}"
+B_INSTALL_DIR="${B_ROOT}/bin/linux"
 
 # ---- 提前退出：--help 显示帮助、--clean 只清理不构建 --------------------------
 # 放在最前，这样即使没装 CMake 也能使用。
@@ -78,7 +83,8 @@ if [ -z "$B_CMAKE" ]; then
 fi
 
 # 仅构建命令行程序：关闭 GUI（省去 Qt/avahi 依赖）与单元测试（省去 ext/ 子模块）
-B_CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=${B_BUILD_TYPE} -DINPUTLEAP_BUILD_GUI=OFF -DINPUTLEAP_BUILD_TESTS=OFF ${B_CMAKE_FLAGS:-}"
+# 安装前缀指向仓库根的 bin/linux，与既有布局（bin/linux/bin、bin/linux/share）一致
+B_CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=${B_BUILD_TYPE} -DINPUTLEAP_BUILD_GUI=OFF -DINPUTLEAP_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=${B_INSTALL_DIR} ${B_CMAKE_FLAGS:-}"
 
 if [ "$(uname)" = "Darwin" ]; then
     # macOS needs a little help, so we source this environment script to fix paths.
@@ -99,4 +105,6 @@ cd ${B_BUILD_DIR}
 echo "Starting Input Leap $B_BUILD_TYPE build in '${B_BUILD_DIR}'..."
 "$B_CMAKE" $B_CMAKE_FLAGS ..
 "$B_CMAKE" --build . --parallel
+echo "Installing to ${B_INSTALL_DIR} ..."
+"$B_CMAKE" --install .
 echo "Build completed successfully"
