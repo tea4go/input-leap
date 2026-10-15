@@ -9,7 +9,7 @@
         input-leapd.exe   后台守护进程
     通过 INPUTLEAP_BUILD_GUI=OFF 关闭 Qt 界面，因此不需要 Qt、Bonjour SDK 与
     Inno Setup；OpenSSL 使用仓库内 third_party/openssl，无需外部安装。
-    构建产物安装到项目根的 bin\windows（与 bin\windowsun-server.bat 同级）。
+    构建产物安装到项目根的 bin\windows（与 bin\windows\run-server.bat 同级）。
 
 .PREREQUISITES
     仅需 Visual Studio 2022/2019（含 C++ 生成工具）与 CMake，其余依赖随仓库提供。
