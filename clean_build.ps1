@@ -12,6 +12,8 @@
 
 .PREREQUISITES
     仅需 Visual Studio 2022/2019（含 C++ 生成工具）与 CMake，其余依赖随仓库提供。
+    CMake 优先取 PATH 中的 cmake；若未安装，会自动回退到 Visual Studio 自带的
+    CMake（BuildTools 版通常自带，但不加入 PATH）。
 
 .ENVIRONMENT
     B_BUILD_TYPE   构建类型，默认 Release
@@ -66,31 +68,54 @@ if ($vs_version -eq '') {
 
 Write-Output "Using Visual Studio version $vs_version at $vs_path";
 
-# ---- 2. 读取构建参数 --------------------------------------------------------
+# ---- 2. 定位 CMake ----------------------------------------------------------
+# 优先使用 PATH 中的 cmake；找不到时回退到 Visual Studio 自带的 CMake
+# （BuildTools 通常自带，但不会加入 PATH，故裸调 cmake 会失败）。
+$cmake = $null;
+$cmake_cmd = Get-Command cmake -CommandType Application -ErrorAction SilentlyContinue;
+if ($cmake_cmd) {
+    $cmake = $cmake_cmd.Source;
+}
+if (-not $cmake) {
+    # 由 VsDevCmd.bat 路径反推 VS 安装根目录：...\<VSROOT>\Common7\Tools\VsDevCmd.bat
+    $vs_root = Split-Path (Split-Path (Split-Path $vs_path -Parent) -Parent) -Parent;
+    $bundled_cmake = Join-Path $vs_root 'Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe';
+    if (Test-Path -LiteralPath $bundled_cmake) {
+        $cmake = $bundled_cmake;
+    }
+}
+if (-not $cmake) {
+    Write-Output "Could not find cmake in PATH nor in Visual Studio. Please install CMake.";
+    break;
+}
+
+Write-Output "Using CMake at $cmake";
+
+# ---- 3. 读取构建参数 --------------------------------------------------------
 # 优先读取环境变量，未设置时使用默认值。
 $build_type = 'Release';
 if ($env:B_BUILD_TYPE -ne $null) {
     $build_type = $env:B_BUILD_TYPE;
 }
 
-# ---- 3. 清空并重建 build 目录 ----------------------------------------------
+# ---- 4. 清空并重建 build 目录 ----------------------------------------------
 if (Test-Path -LiteralPath build) {
     Remove-Item -LiteralPath build -Recurse;
 }
 New-Item -Force -ItemType Directory -Path .\build | Out-Null
 pushd build
 
-# ---- 4. 配置、编译并安装 ----------------------------------------------------
+# ---- 5. 配置、编译并安装 ----------------------------------------------------
 try {
     # 仅构建命令行程序：关闭 GUI（省去 Qt/Bonjour 依赖）与单元测试（省去 ext/gtest 子模块）
-    cmake .. -G "$vs_version" -A x64 `
+    & $cmake .. -G "$vs_version" -A x64 `
         "-DCMAKE_BUILD_TYPE=$build_type" `
         -DINPUTLEAP_BUILD_GUI=OFF `
         -DINPUTLEAP_BUILD_TESTS=OFF `
         -DCMAKE_INSTALL_PREFIX=input-leap-install
 
     # 并行编译并执行 install 目标，产物落到 input-leap-install
-    cmake --build . --parallel --config $build_type --target install
+    & $cmake --build . --parallel --config $build_type --target install
 } finally {
     popd
 }
