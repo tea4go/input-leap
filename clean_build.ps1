@@ -9,6 +9,7 @@
         input-leapd.exe   后台守护进程
     通过 INPUTLEAP_BUILD_GUI=OFF 关闭 Qt 界面，因此不需要 Qt、Bonjour SDK 与
     Inno Setup；OpenSSL 使用仓库内 third_party/openssl，无需外部安装。
+    构建产物安装到项目根的 bin\windows（与 bin\windowsun-server.bat 同级）。
 
 .PREREQUISITES
     仅需 Visual Studio 2022/2019（含 C++ 生成工具）与 CMake，其余依赖随仓库提供。
@@ -107,12 +108,15 @@ pushd build
 
 # ---- 5. 配置、编译并安装 ----------------------------------------------------
 try {
+    # 安装到项目根的 bin\windows（$PSScriptRoot 即脚本所在目录，也就是仓库根）
+    $install_dir = Join-Path $PSScriptRoot 'bin\windows'
+
     # 仅构建命令行程序：关闭 GUI（省去 Qt/Bonjour 依赖）与单元测试（省去 ext/gtest 子模块）
     & $cmake .. -G "$vs_version" -A x64 `
         "-DCMAKE_BUILD_TYPE=$build_type" `
         -DINPUTLEAP_BUILD_GUI=OFF `
         -DINPUTLEAP_BUILD_TESTS=OFF `
-        -DCMAKE_INSTALL_PREFIX=input-leap-install
+        "-DCMAKE_INSTALL_PREFIX=$install_dir"
 
     # 并行编译并执行 install 目标，产物落到 input-leap-install
     & $cmake --build . --parallel --config $build_type --target install
