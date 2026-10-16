@@ -115,3 +115,40 @@ jobs:
           name: input-leap-macos-arm64
           path: input-leap-macos-arm64.tar.gz
           if-no-files-found: error
+
+  # 三平台构建全部成功后，创建/更新滚动 Release（tag: latest），附上三平台包。
+  # 想要“每次提交一个独立版本”，把下面的 latest 换成如 v3.0.3-$SHA 即可。
+  publish:
+    name: Publish Release
+    needs: [ linux, windows, macos ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Create or update the "latest" release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.sha }}
+          REF: ${{ github.ref_name }}
+        run: |
+          set -e
+          FILES=$( { find dist -type f -name '*.tar.gz'; find dist -type f -name '*.zip'; } | sort )
+          echo "待发布文件："
+          echo "$FILES"
+          NOTES="InputLeap 命令行版最新构建
+
+          - 提交: $SHA
+          - 分支: $REF
+          - 平台: Linux (x86_64) / Windows (x64) / macOS (arm64)
+          - 仅命令行程序（无 Qt 界面）"
+          if gh release view latest >/dev/null 2>&1; then
+            gh release upload latest $FILES --clobber
+            gh release edit latest --notes "$NOTES"
+          else
+            gh release create latest --title "InputLeap CLI 最新构建" --notes "$NOTES" --target "$SHA" $FILES
+          fi
+          gh release view latest --json url,assets --jq '"发布地址: " + .url, (.assets[] | "  " + .name)'
