@@ -1,0 +1,116 @@
+name: Release Builds
+
+# 每次 push 到 master 构建三平台（Linux / Windows / macOS）命令行发行包。
+# 产物通过 Actions Artifacts 提供，在 Actions 页面下载。
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 同一分支连续 push 时取消上一次未完成的运行，避免排队
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    name: Linux (x86_64)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake ninja-build pkg-config libssl-dev \
+            libx11-dev libxext-dev libxrandr-dev libxinerama-dev \
+            libxtst-dev libxi-dev libice-dev libsm-dev
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DINPUTLEAP_BUILD_GUI=OFF \
+            -DINPUTLEAP_BUILD_TESTS=OFF \
+            -DINPUTLEAP_VERSION_DESC=release \
+            -DCMAKE_INSTALL_PREFIX="$PWD/install"
+
+      - name: Build and install
+        run: |
+          cmake --build build --parallel
+          cmake --install build
+
+      - name: Package
+        run: tar -czf input-leap-linux-x86_64.tar.gz -C install .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: input-leap-linux-x86_64
+          path: input-leap-linux-x86_64.tar.gz
+          if-no-files-found: error
+
+  windows:
+    name: Windows (x64)
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      # OpenSSL 由仓库内 third_party/openssl 提供，无需外部 SDK
+      - name: Configure
+        run: |
+          cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DINPUTLEAP_BUILD_GUI=OFF `
+            -DINPUTLEAP_BUILD_TESTS=OFF `
+            -DINPUTLEAP_VERSION_DESC=release `
+            -DCMAKE_INSTALL_PREFIX="$PWD/install"
+
+      - name: Build and install
+        run: cmake --build build --config Release --target install
+
+      - name: Package
+        run: Compress-Archive -Path "install\*" -DestinationPath input-leap-windows-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: input-leap-windows-x64
+          path: input-leap-windows-x64.zip
+          if-no-files-found: error
+
+  macos:
+    name: macOS (arm64)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: brew install ninja openssl@3
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DINPUTLEAP_BUILD_GUI=OFF \
+            -DINPUTLEAP_BUILD_TESTS=OFF \
+            -DINPUTLEAP_VERSION_DESC=release \
+            -DOpenSSL_ROOT="$(brew --prefix openssl@3)" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DCMAKE_INSTALL_PREFIX="$PWD/install"
+
+      - name: Build and install
+        run: |
+          cmake --build build --parallel
+          cmake --install build
+
+      - name: Package
+        run: tar -czf input-leap-macos-arm64.tar.gz -C install .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: input-leap-macos-arm64
+          path: input-leap-macos-arm64.tar.gz
+          if-no-files-found: error

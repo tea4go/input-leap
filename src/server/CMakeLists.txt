@@ -51,9 +51,11 @@ add_executable(input-leaps ${sources})
 target_link_libraries(input-leaps
     arch base client common io mt net ipc platform server synlib ${libs} OpenSSL::SSL OpenSSL::Crypto)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND INPUTLEAP_BUILD_GUI)
+    # GUI build on macOS installs into the .app bundle
     install(TARGETS input-leaps DESTINATION ${INPUTLEAP_BUNDLE_BINARY_DIR})
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    # CLI-only builds (incl. macOS with INPUTLEAP_BUILD_GUI=OFF) go to bin/
     install (TARGETS input-leaps DESTINATION bin)
 else()
     install (TARGETS input-leaps DESTINATION .)
