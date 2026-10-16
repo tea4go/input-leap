@@ -98,6 +98,7 @@ jobs:
             -DINPUTLEAP_BUILD_TESTS=OFF \
             -DINPUTLEAP_VERSION_DESC=release \
             -DOpenSSL_ROOT="$(brew --prefix openssl@3)" \
+            -DCMAKE_OSX_SYSROOT="$(xcrun --sdk macosx --show-sdk-path)" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
             -DCMAKE_INSTALL_PREFIX="$PWD/install"
 
